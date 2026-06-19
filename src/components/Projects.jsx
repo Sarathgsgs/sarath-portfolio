@@ -22,6 +22,28 @@ export default function Projects() {
                 <span key={t} className="tech-pill">{t}</span>
               ))}
             </div>
+
+            {proj.demoUrl && (
+              <div className="proj-actions" style={{ marginTop: '20px' }}>
+                <a
+                  href={proj.demoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-primary"
+                  style={{
+                    padding: '8px 18px',
+                    fontSize: '0.85rem',
+                    borderRadius: '8px',
+                    textDecoration: 'none',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  🔗 View Live Demo
+                </a>
+              </div>
+            )}
           </div>
           <div className="proj-body">
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px' }}>

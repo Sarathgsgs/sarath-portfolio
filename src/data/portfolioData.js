@@ -110,6 +110,8 @@ export const portfolioData = {
       description:
         "A scalable web platform for managing and accessing academic resources with role-based authentication and cloud storage.",
 
+      demoUrl: "https://saas-materials-hub.vercel.app/",
+
       features: [
         "Role Based Access Control",
         "Supabase Authentication",
@@ -138,6 +140,8 @@ export const portfolioData = {
 
       description:
         "Responsive GPA and CGPA calculator with real-time validation and credit-weighted calculations.",
+
+      demoUrl: "https://gpacalculator-rust.vercel.app/cgpa",
 
       features: [
         "Dynamic Grade Inputs",
