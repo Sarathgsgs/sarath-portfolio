@@ -181,6 +181,12 @@ main {
   background: rgba(124, 58, 237, 0.15);
 }
 
+.nav-link.active {
+  color: #fff;
+  background: rgba(124, 58, 237, 0.25);
+  font-weight: 600;
+}
+
 .nav-hamburger {
   display: none;
   flex-direction: column;
@@ -231,6 +237,12 @@ main {
 .nav-mobile-link:hover {
   color: #fff;
   background: rgba(124, 58, 237, 0.15);
+}
+
+.nav-mobile-link.active {
+  color: #fff;
+  background: rgba(124, 58, 237, 0.25);
+  font-weight: 600;
 }
 
 @media (max-width: 768px) {

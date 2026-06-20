@@ -6,27 +6,60 @@ export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', message: '' });
   const [errors, setErrors] = useState({});
   const [sent, setSent] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  const submit = (e) => {
+  const handleCopyEmail = (e) => {
+    e.preventDefault();
+    navigator.clipboard.writeText(email).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }).catch(() => {
+      alert("Failed to copy email automatically. You can copy it manually: " + email);
+    });
+  };
+
+  const submit = async (e) => {
     e.preventDefault();
     const errs = {};
     if (!form.name.trim()) errs.name = 'Name is required';
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errs.email = 'Enter a valid email';
     if (!form.message.trim()) errs.message = "Message can't be empty";
     setErrors(errs);
-    if (Object.keys(errs).length === 0) {
-      const subject = encodeURIComponent(`Portfolio Message from ${form.name}`);
-      const body = encodeURIComponent(
-        `Name: ${form.name}\nEmail: ${form.email}\n\nMessage:\n${form.message}`
-      );
-      window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
 
-      setSent(true);
-      setForm({ name: '', email: '', message: '' });
-      setTimeout(() => setSent(false), 4000);
+    if (Object.keys(errs).length === 0) {
+      setSubmitting(true);
+      const formData = new FormData();
+      formData.append("name", form.name);
+      formData.append("email", form.email);
+      formData.append("message", form.message);
+      
+      // Use env variable or fallback placeholder key
+      const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || "YOUR_ACCESS_KEY_HERE";
+      formData.append("access_key", accessKey);
+
+      try {
+        const response = await fetch("https://api.web3forms.com/submit", {
+          method: "POST",
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          setSent(true);
+          setForm({ name: '', email: '', message: '' });
+          setTimeout(() => setSent(false), 4000);
+        } else {
+          alert(data.message || "Something went wrong. Please try again.");
+        }
+      } catch (error) {
+        alert("Something went wrong. Please try again.");
+      } finally {
+        setSubmitting(false);
+      }
     }
   };
-
 
   return (
     <section className="section" id="contact">
@@ -36,13 +69,20 @@ export default function Contact() {
       <div className="contact-card glass">
         <div className="contact-grid">
           <div>
-            <a className="contact-link" href={`mailto:${email}`}>
+            <div
+              className="contact-link"
+              onClick={handleCopyEmail}
+              style={{ cursor: 'pointer' }}
+              title="Click to copy email address"
+            >
               <div className="contact-icon">✉</div>
               <div>
-                <div style={{ fontSize: '.75rem', color: 'var(--text-dim)' }}>EMAIL</div>
+                <div style={{ fontSize: '.75rem', color: 'var(--text-dim)' }}>
+                  {copied ? 'COPIED TO CLIPBOARD! ✓' : 'EMAIL (CLICK TO COPY)'}
+                </div>
                 {email}
               </div>
-            </a>
+            </div>
             <a className="contact-link" href={`tel:${phone}`}>
               <div className="contact-icon">📞</div>
               <div>
@@ -74,14 +114,19 @@ export default function Contact() {
           </div>
 
           <form onSubmit={submit}>
-            <input className="form-field" placeholder="Name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
+            <input className="form-field" placeholder="Name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} disabled={submitting} />
             {errors.name && <div className="form-error">{errors.name}</div>}
-            <input className="form-field" placeholder="Email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
+            <input className="form-field" placeholder="Email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} disabled={submitting} />
             {errors.email && <div className="form-error">{errors.email}</div>}
-            <textarea className="form-field" placeholder="Message" rows="4" value={form.message} onChange={e => setForm({ ...form, message: e.target.value })}></textarea>
+            <textarea className="form-field" placeholder="Message" rows="4" value={form.message} onChange={e => setForm({ ...form, message: e.target.value })} disabled={submitting}></textarea>
             {errors.message && <div className="form-error">{errors.message}</div>}
-            <button className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }} type="submit">
-              {sent ? 'Message Sent ✓' : 'Send Message'}
+            <button 
+              className="btn btn-primary" 
+              style={{ width: '100%', justifyContent: 'center' }} 
+              type="submit"
+              disabled={submitting}
+            >
+              {submitting ? 'Sending...' : sent ? 'Message Sent ✓' : 'Send Message'}
             </button>
           </form>
         </div>

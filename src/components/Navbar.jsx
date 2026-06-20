@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import useScrollSpy from '../hooks/useScrollSpy';
 
 const NAV_ITEMS = [
   { label: 'About', href: '#about' },
@@ -13,6 +14,10 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  // Extract section IDs from NAV_ITEMS (e.g. 'about', 'experience', etc.)
+  const sectionIds = NAV_ITEMS.map(item => item.href.replace('#', ''));
+  const activeSection = useScrollSpy(sectionIds, 100);
+
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener('scroll', handleScroll);
@@ -25,11 +30,19 @@ export default function Navbar() {
         <a href="#about" className="nav-logo">SG</a>
 
         <div className="nav-links-desktop">
-          {NAV_ITEMS.map(item => (
-            <a key={item.label} href={item.href} className="nav-link">
-              {item.label}
-            </a>
-          ))}
+          {NAV_ITEMS.map(item => {
+            const id = item.href.replace('#', '');
+            const isActive = activeSection === id;
+            return (
+              <a
+                key={item.label}
+                href={item.href}
+                className={`nav-link ${isActive ? 'active' : ''}`}
+              >
+                {item.label}
+              </a>
+            );
+          })}
         </div>
 
         <button
@@ -46,16 +59,20 @@ export default function Navbar() {
       {/* Mobile dropdown */}
       {mobileOpen && (
         <div className="nav-mobile-menu">
-          {NAV_ITEMS.map(item => (
-            <a
-              key={item.label}
-              href={item.href}
-              className="nav-mobile-link"
-              onClick={() => setMobileOpen(false)}
-            >
-              {item.label}
-            </a>
-          ))}
+          {NAV_ITEMS.map(item => {
+            const id = item.href.replace('#', '');
+            const isActive = activeSection === id;
+            return (
+              <a
+                key={item.label}
+                href={item.href}
+                className={`nav-mobile-link ${isActive ? 'active' : ''}`}
+                onClick={() => setMobileOpen(false)}
+              >
+                {item.label}
+              </a>
+            );
+          })}
         </div>
       )}
     </nav>
